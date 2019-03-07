@@ -16,6 +16,8 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+import sys,os
+sys.path.insert(0, os.path.abspath(os.path.split(__file__)[0]))
 
 # -- Project information -----------------------------------------------------
 
@@ -39,6 +41,7 @@ release = u'0.0.1.'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+'matplotlib.sphinxext.plot_directive',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

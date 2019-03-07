@@ -10,6 +10,9 @@ Welcome to Optical tweezer tools's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   introduction
+   force_calculation
+
 
 
 Indices and tables

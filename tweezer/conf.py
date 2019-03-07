@@ -40,6 +40,7 @@ def get_home_dir():
 HOMEDIR = get_home_dir()
 
 TWEEZER_CONFIG_DIR = os.path.join(HOMEDIR, ".tweezer")
+NUMBA_CACHE_DIR = os.path.join(TWEEZER_CONFIG_DIR, "numba_cache")
 
 if not os.path.exists(TWEEZER_CONFIG_DIR):
     try:
