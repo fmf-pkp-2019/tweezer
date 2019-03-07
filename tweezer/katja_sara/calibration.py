@@ -29,6 +29,28 @@ def subtract_linear_drift(time, data):
     return data - linear(time, k, n)
 
 
+def subtract_running_average(time, data, T = 1):
+    """
+    Subtracts the running average from the positions.
+    Running average is the average of the positions in the last T seconds.
+    Args:
+        data: Array of positions in one dimension.
+        T: Length of the time interval used for the running average.
+    Returns:
+        Array of positions with the running average subtracted.
+    """
+    
+    dt = (time[-1] - time[0])/len(time)
+    n = int(T/dt)
+    x = np.zeros(len(data))
+    for i in range(1, n):
+        x[i] = data[i] - np.mean(data[: i])
+    for i in range(n, len(data)):
+        x[i] = data[i] - np.mean(data[i-n: i])
+    
+    return x
+
+
 def center_and_rotate(xdata, ydata):
     """
     Sets the average position as the origin,
