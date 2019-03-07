@@ -43,7 +43,7 @@ def rotate(x, y, phi):
 # def drift(x, y, *args):
 
 
-def generate(ks, temp=273, phi=0, number_of_points=1000):
+def generate(ks, temp=273, phi=0, number_of_points=10**4):
     x, y = draw(ks, temp, number_of_points)
     x, y = rotate(x, y, phi)
     # x, y = drift(x, y, *args)
