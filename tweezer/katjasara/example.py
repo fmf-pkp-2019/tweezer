@@ -2,7 +2,7 @@ import numpy as np
 import tweezer.katjasara.calibration as cal
 import tweezer.katjasara.generate as gen
 
-# Parameters to draw positions
+# Parameters for drawing positions
 k = (1.e-06, 2.e-6)
 phi = 1.
 center = (6., 7.)
