@@ -84,7 +84,7 @@ def center_and_rotate(xdata, ydata):
     new_ydata : ndarray
         new y-coordinates
     phi : float
-        Angle in anticlockwise direction by which positions were rotated.
+        angle in anticlockwise direction by which positions were rotated
     var : ndarray
         new variances
 
@@ -128,7 +128,7 @@ def center_and_rotate(xdata, ydata):
 
 
 def calibrate(time, xdata, ydata, averaging_time=10., temp=293.):
-    """Calibrates laser tweezer.
+    """Calibrates tweezer.
 
     Subtracts moving average from xdata and ydata,
     centers xdata and ydata and rotates positions so that k_x < k_y.
@@ -150,9 +150,9 @@ def calibrate(time, xdata, ydata, averaging_time=10., temp=293.):
     Returns
     -------
     k : tuple of floats
-        laser tweezer coefficients (k_x, k_y)
+        tweezer coefficients (k_x, k_y)
     phi : float
-        Angle in anticlockwise direction by which positions were rotated.
+        angle in anticlockwise direction by which positions were rotated
 
     Examples
     --------

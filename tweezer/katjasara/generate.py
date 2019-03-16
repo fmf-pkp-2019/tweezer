@@ -8,13 +8,13 @@ def draw(k, temp, number_of_points):
     """Draws positions.
 
     Draws positions with uncorrelated coordinates from
-    centered bivariate distribution, determined by
-    laser tweezer coefficients and temperature.
+    bivariate distribution, centered at (0, 0) and determined by
+    tweezer coefficients and temperature.
 
     Parameters
     ----------
     k : tuple of floats
-        laser tweezer coefficients (k_x, k_y)
+        tweezer coefficients (k_x, k_y)
     temp : float
         temperature in kelvins
     number_of_points : int
@@ -80,6 +80,7 @@ def rotate_and_decenter(xdata, ydata, phi, center):
 
     n = len(xdata)
 
+    # Rotates one data point
     def rotate_one(phi, x, y):
         x_rotated = np.cos(phi)*x - np.sin(phi)*y
         y_rotated = np.sin(phi)*x + np.cos(phi)*y
@@ -98,12 +99,12 @@ def generate(k, temp=273, phi=0., center=(0., 0.), number_of_points=10**4):
 
     Draws positions with uncorrelated coordinates from
     rotated bivariate distribution with moved center, determined by
-    laser tweezer coefficients and temperature.
+    tweezer coefficients and temperature.
 
     Parameters
     ----------
     k : tuple of floats
-        laser tweezer coefficients (k_x, k_y)
+        tweezer coefficients (k_x, k_y)
     temp : float
         temperature in kelvins
     phi : float
