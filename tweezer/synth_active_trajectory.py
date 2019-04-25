@@ -170,7 +170,7 @@ def SAT2(file_name, num_points, dt, trap_kx, trap_ky, trap_xfreq, trap_yfreq, tr
         if last_sample_interval > dt:
             last_sample_interval -= dt
             i += 1
-            fout.write("%3.5f\t\t%3.3f\t%3.3f\t\t\t\t\t\t\t\t\t\t\t%3.4f\t%3.4f\r\n" % (t,trap_x[0]*1e6,trap_x[1]*1e6,x[0]*1e6,x[1]*1e6))
+            fout.write("%3.5f\t\t\t%3.3f\t%3.3f\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t%3.4f\t%3.4f\t\n" % (t,trap_x[0]*1e6,trap_x[1]*1e6,x[0]*1e6,x[1]*1e6))
             poz[i-1,:] = x
             trap_poz[i-1,:] = trap_x
             time[i-1] = t
