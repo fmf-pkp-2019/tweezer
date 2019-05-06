@@ -63,7 +63,7 @@ def trajectory_plot(time, data, averaging_time=1.):
     titles = ['x', 'y']
     for i in range(2):
         ax = fig.add_subplot(1, 2, i+1)
-        ax.set_title('Trajectory of a trapped particle in {} direction'.format(titles[i]))
+        ax.set_title('Trajectory of a trapped particle \n in {} direction'.format(titles[i]))
         ax.grid(True)
         ax.set_xlabel('Time [s]')
         ax.set_ylabel('Direction {} '.format(titles[i]) + r'[$\mu m$]')
