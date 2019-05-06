@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import tweezer.calibration as cal
+import calibration as cal
 
 def read_file(path, no_of_particles):
     """Unpacks a dat file.
@@ -36,6 +36,7 @@ def read_file(path, no_of_particles):
         data[rows,:] = (line.split('\t'))[:columns]
         rows += 1
     data = data[:rows, :].astype(np.float)
+    raw_data.close()
     print('Shape of initial data: ', data.shape)
     # Check data how many nans it contains in trajectories
     for i in range(rows-1, 0, -1):
