@@ -1,9 +1,11 @@
 import numpy as np
 import scipy.constants
+import scipy.optimize
 
 import matplotlib.pyplot as plt
 
 KB = scipy.constants.Boltzmann
+
 
 def subtract_moving_average(time, data, averaging_time):
     """Subtracts moving average from data.
@@ -11,7 +13,7 @@ def subtract_moving_average(time, data, averaging_time):
     Assumes data points are spaced evenly in time. Computes moving average
     by averaging data over time interval of width averaging_time
     and subtracts it from data.
-    The data is shortened to the valid range, so there are no data 
+    The data is shortened to the valid range, so there are no data
     boundary effects.
 
     Parameters
@@ -56,7 +58,8 @@ def subtract_moving_average(time, data, averaging_time):
     elif n > len(data)/2.:
         raise ValueError("Too long averaging time.")
 
-    moving_average = np.convolve(data, np.ones(((int)(2*n),))/(float)(2*n), mode = 'valid')
+    moving_average = np.convolve(data, np.ones(
+        ((int)(2*n),))/(float)(2*n), mode='valid')
     new_data = data[n:-n+1] - moving_average
     new_time = time[n:-n+1]
 
@@ -76,7 +79,7 @@ def center_and_rotate(xdata, ydata):
     xdata : array_like
         x-coordinates
     ydata : array_like
-        y-coordinates   
+        y-coordinates
 
     Returns
     -------
@@ -99,7 +102,7 @@ def center_and_rotate(xdata, ydata):
     """
     xdata = np.array(xdata)
     ydata = np.array(ydata)
-    
+
     if len(xdata) != len(ydata):
         raise ValueError("Unclear number of points.")
 
@@ -151,13 +154,16 @@ def calibrate(time, data, averaging_time=1., temp=293.):
 
     """
     data = np.array(data)
-    x, x_average = subtract_moving_average(time, data[:, 0], averaging_time)[:2]
-    y, y_average = subtract_moving_average(time, data[:, 1], averaging_time)[:2]
+    x, x_average = subtract_moving_average(
+        time, data[:, 0], averaging_time)[:2]
+    y, y_average = subtract_moving_average(
+        time, data[:, 1], averaging_time)[:2]
     trajectory, phi, var = center_and_rotate(x, y)
     ks = KB*temp/var*1e12
 
     return tuple(ks), phi, np.array([x_average, y_average])
-  
+
+
 def potential(time, data, averaging_time=1., temp=293.):
     """Calculates the potential.
 
@@ -194,17 +200,85 @@ def potential(time, data, averaging_time=1., temp=293.):
     x = subtract_moving_average(time, data[:, 0], averaging_time)[0]
     y = subtract_moving_average(time, data[:, 1], averaging_time)[0]
     trajectory, phi, var = center_and_rotate(x, y)
-    
+
     positions = [0, 0]
     potential_values = [0, 0]
-    
+
     for i in range(2):
-       hist, bin_edges = np.histogram(trajectory[:, i], bins=int(np.sqrt(len(x))), density=False)
-       hist = hist/(float)(len(x))
-       bin_centres = (bin_edges[:-1] + bin_edges[1:])/2.
-       ok_index = hist > 0
-       hist, bin_centres = hist[ok_index], bin_centres[ok_index]
-       positions[i] = bin_centres
-       potential_values[i] = -np.log(hist)
+        hist, bin_edges = np.histogram(
+            trajectory[:, i], bins=int(np.sqrt(len(x))), density=False)
+        hist = hist/(float)(len(x))
+        bin_centres = (bin_edges[:-1] + bin_edges[1:])/2.
+        ok_index = hist > 0
+        hist, bin_centres = hist[ok_index], bin_centres[ok_index]
+        positions[i] = bin_centres
+        potential_values[i] = -np.log(hist)
 
     return positions, potential_values, phi
+
+
+def calibrate_by_fitting_polynomial(
+    time, data, averaging_time=1., temp=293., order=2
+):
+    """Calibrates tweezer by fitting a polynomial to the potential.
+
+    Subtracts moving average from xdata and ydata,
+    centers xdata and ydata and rotates positions so that k_x < k_y.
+    Histograms the data to get the probability density.
+    Computes the potential in units of KB T as log(rho).
+    Fits an even polynomial of the order (order // 2 * 2).
+
+    Parameters
+    ----------
+    time : array_like
+        time coordinates
+    data : ndarray_like
+        x-coordinates and y-coordinates
+    averaging_time : float
+        averaging time interval
+    temp : float
+        temperature in kelvins
+    order : int
+        order of the polynomial
+
+    Returns
+    -------
+    positions : list of two arrays
+        x- and y-coordinates
+    potential_values : list of two arrays
+        values of the potential coresponding to the positions
+    popt : tuple of two arrays (the first one for x and the second one for y)
+        in every array there are coefficients of the polynomial
+        listed from the lowest to the highest order
+    phi : float
+        angle in anticlockwise direction by which positions were rotated
+
+    Examples
+    --------
+    TODO
+
+    """
+
+    order = int(order)
+    assert order >= 2, "Choose order>=2."
+
+    positions, potential_values, phi = potential(
+        time, data, averaging_time=1., temp=293.
+    )
+
+    def f(x, *coefs):
+        polynomial = 0.
+        i = 0
+        for coef in coefs:
+            polynomial += coef * x ** (2 * i)
+            i += 1
+        return polynomial
+
+    popt = np.zeros((order // 2 + 1, 2))
+    for i in range(2):
+        popt[:, i], _ = scipy.optimize.curve_fit(
+            f, positions[i], potential_values[i],
+            p0=[1. for _ in range(order // 2 + 1)]
+        )
+
+    return positions, potential_values, (popt[:, 0], popt[:, 1]), phi

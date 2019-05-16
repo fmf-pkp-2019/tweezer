@@ -24,14 +24,47 @@ def four_corner_offsets(upper_left, upper_right, lower_left, lower_right):
 
     points = np.zeros((4,4))
 
-    _,traps,particles = plotting.read_file(upper_left,1)
-    points[0,:] = (np.mean(traps[:,0]), np.mean(traps[:,1]) ,np.mean(particles[:,0]) - np.mean(traps[:,0]),np.mean(particles[:,1]) - np.mean(traps[:,1]))
-    _,traps,particles = plotting.read_file(upper_right,1)
-    points[0,:] = (np.mean(traps[:,0]), np.mean(traps[:,1]) ,np.mean(particles[:,0]) - np.mean(traps[:,0]),np.mean(particles[:,1]) - np.mean(traps[:,1]))
-    _,traps,particles = plotting.read_file(lower_left,1)
-    points[0,:] = (np.mean(traps[:,0]), np.mean(traps[:,1]) ,np.mean(particles[:,0]) - np.mean(traps[:,0]),np.mean(particles[:,1]) - np.mean(traps[:,1]))
-    _,traps,particles = plotting.read_file(lower_right,1)
-    points[0,:] = (np.mean(traps[:,0]), np.mean(traps[:,1]) ,np.mean(particles[:,0]) - np.mean(traps[:,0]),np.mean(particles[:,1]) - np.mean(traps[:,1]))
+    _,trap_1,traj_1 = plotting.read_file(upper_left,1)
+    _,trap_2,traj_2 = plotting.read_file(upper_right,1)
+    _,trap_3,traj_3 = plotting.read_file(lower_left,1)
+    _,trap_4,traj_4 = plotting.read_file(lower_right,1)
+
+    points = four_corner_offsets_calculate(trap_1,trap_2,trap_3,trap_4,traj_1,traj_2,traj_3,traj_4)
+
+    return points
+
+def four_corner_offsets_calculate(trap_1, trap_2, trap_3, trap_4, pos_1, pos_2, pos_3, pos_4):
+    """Calculates particle-trap offsets. To ensure good results, the positions should roughly form a rectangle. 
+    Parameters
+    ----------
+    trap_1 : ndarray_like
+        positions of traps for 1st measurement
+    trap_2 : ndarray_like
+        positions of traps for 2nd measurement
+    trap_3 : ndarray_like
+        positions of traps for 3rd measurement
+    trap_4 : ndarray_like
+        positions of traps for 4th measurement
+    pos_1 : ndarray-like
+        trajectory of particle for 1st measurement
+    pos_2 : ndarray-like
+        trajectory of particle for 2nd measurement
+    pos_3 : ndarray-like
+        trajectory of particle for 3rd measurement
+    pos_4 : ndarray-like
+        trajectory of particle for 4th measurement
+    Returns
+    -------
+    points : array of float
+        n-th row stores x-,y-coordinates of n-th trap and x-,y-offset of n-th particle
+    """
+
+    points = np.zeros((4,4))
+
+    points[0,:] = (np.mean(trap_1[:,0]), np.mean(trap_1[:,1]) ,np.mean(pos_1[:,0]) - np.mean(trap_1[:,0]),np.mean(pos_1[:,1]) - np.mean(trap_1[:,1]))
+    points[1,:] = (np.mean(trap_2[:,0]), np.mean(trap_2[:,1]) ,np.mean(pos_2[:,0]) - np.mean(trap_2[:,0]),np.mean(pos_2[:,1]) - np.mean(trap_2[:,1]))
+    points[2,:] = (np.mean(trap_3[:,0]), np.mean(trap_3[:,1]) ,np.mean(pos_3[:,0]) - np.mean(trap_3[:,0]),np.mean(pos_3[:,1]) - np.mean(trap_3[:,1]))
+    points[3,:] = (np.mean(trap_4[:,0]), np.mean(trap_4[:,1]) ,np.mean(pos_4[:,0]) - np.mean(trap_4[:,0]),np.mean(pos_4[:,1]) - np.mean(trap_4[:,1]))
 
     return points
 
@@ -59,7 +92,7 @@ def four_corner_calibration(trap_pos_x, trap_pos_y, points):
     --------
     TODO
     """
-
+    
     p1 = points[0,:]
     p2 = points[1,:]
     p3 = points[2,:]

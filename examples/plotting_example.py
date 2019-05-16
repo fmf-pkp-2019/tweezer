@@ -5,11 +5,12 @@ import tweezer.force_calc as forcecalc
 import tweezer.calibration as cal
 
 # Example of unpacking the data, and plotting all plot functios
-# Get data from drive (under Vzorci/1 static particle) and save it in examples folder
+# Get data from drive (under Vzorci/1 static particle) and save it in
+# examples folder
 
-#script_dir = os.path.dirname(__file__) # absolute dir the script is in
-file_name = 'test.dat' # name of the dat file
-#path = os.path.join(script_dir, file_name)
+# script_dir = os.path.dirname(__file__) # absolute dir the script is in
+file_name = 'test.dat'  # name of the dat file
+# path = os.path.join(script_dir, file_name)
 path = file_name
 particles = 1
 
@@ -25,8 +26,11 @@ for i in range(particles):
     plt.calibration_plots(time, data, averaging_time)
     # Example of using potential plot
     plt.potential_plot(time, data, averaging_time)
+    # Example of using potential plot with polynomial fit
+    plt.potential_polynomial_fit_plot(time, data, order=4)
     # Calculate forces
-    k_estimated, phi_estimated, center_estimated = cal.calibrate(time, data, averaging_time)
-    f,m = forcecalc.force_calculation(time, data, trap, k_estimated, 300)
+    k_estimated, phi_estimated, center_estimated = cal.calibrate(
+        time, data, averaging_time)
+    f, m = forcecalc.force_calculation(time, data, trap, k_estimated, 300)
     # Plot force
-    plt.force_plot(time,f)
+    plt.force_plot(time, f)

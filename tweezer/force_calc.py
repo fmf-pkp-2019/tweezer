@@ -110,7 +110,14 @@ def force_calculation_axis(time, trajectory, trap_position, ks_1, ks_2, temp=293
     forces = np.zeros((n,2))
 
     for point in range(n):
-        phi = np.arctan((trap_position[point,3] - trap_position[point,1])/(trap_position[point,2] - trap_position[point,0]))
+        if (trap_position[point,2] == trap_position[point,0]):
+            if (trap_position[point,3] - trap_position[point,1] > 0):
+                phi = math.pi/2.
+            elif (trap_position[point,3] - trap_position[point,1] < 0):
+                phi = -math.pi/2.
+        else:
+            phi = np.arctan((trap_position[point,3] - trap_position[point,1])/(trap_position[point,2] - trap_position[point,0]))
+            
         theta_1 = np.arctan((trajectory[point,1]-trap_position[point,1])/(trajectory[point,0]-trap_position[point,0]))
         theta_2 = np.arctan((trajectory[point,3]-trap_position[point,3])/(trajectory[point,2]-trap_position[point,2]))
         keff_1 = math.sqrt((ks_1[0]*math.cos(theta_1))**2 + (ks_1[1]*math.sin(theta_1))**2)
@@ -145,23 +152,25 @@ def sigma_calculation(trajectory, trap_position):
         uncertainties of displacements in x- and y-directions
     """
 
-    if (trajectory.shape != trap_position.shape):
-        raise IndexError("Array dimensions need to be identical")
+    n,m = trajectory.shape
+    if (n!=len(trap_position[:, 0])):
+        raise IndexError("Number of array elements needs to be identical")
+    elif (trap_position.shape[1] < m):
+        raise IndexError("Trap coordinates undefined for %d columns" % (m-trap_position.shape[1]))
 
-    n,_ = trajectory.shape
-    displacements = np.zeros((n,4))
-    squares = np.zeros((n,4))
-    sigmas = np.zeros(4)
+    displacements = np.zeros((n,m))
+    squares = np.zeros((n,m))
+    sigmas = np.zeros(m)
 
     for point in range(n):
-        for i in range(4):
+        for i in range(m):
             displacements[point,i] = trajectory[point,i]-trap_position[point,i]
             squares[point,i] = displacements[point,i]**2
     
     means = np.mean(np.fabs(displacements), axis=0)
     means_sq = np.mean(np.fabs(squares), axis=0)
 
-    for point in range(4):
+    for point in range(m):
         sigmas[point] = math.sqrt(abs(means_sq[point] - np.square(means[point])))
 
     return means, sigmas

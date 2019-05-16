@@ -16,7 +16,7 @@ averaging_time = 0.1
 k_estimated, phi_estimated, center_estimated = cal.calibrate(time, data, averaging_time)
 print(k_estimated, phi_estimated)
 
-# Example of using calibarion.potential
+# Example of using calibration.potential
 positions, values, phi = cal.potential(time, data, averaging_time)
 
 # Example of using trajectory plot

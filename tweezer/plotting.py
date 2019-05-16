@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import calibration as cal
 
+
 def read_file(path, no_of_particles):
     """Unpacks a dat file.
 
@@ -33,7 +34,7 @@ def read_file(path, no_of_particles):
     for line in raw_data.readlines():
         # If data is missing (double tab), replace it with nan
         line = line.replace('\t\t', '\tnan')
-        data[rows,:] = (line.split('\t'))[:columns]
+        data[rows, :] = (line.split('\t'))[:columns]
         rows += 1
     data = data[:rows, :].astype(np.float)
     raw_data.close()
@@ -47,15 +48,18 @@ def read_file(path, no_of_particles):
     print('Shape of cropped data: ', data.shape)
     return data[:, 0], data[:, 2:14], data[:, 14:columns]
 
+
 def trajectory_plot(time, data, averaging_time=1.):
     """
     TODO
 
     """
     data = np.array(data)
-    x, x_average, _ = cal.subtract_moving_average(time, data[:, 0], averaging_time)
-    y, y_average, time = cal.subtract_moving_average(time, data[:, 1], averaging_time)
-    
+    x, x_average, _ = cal.subtract_moving_average(
+        time, data[:, 0], averaging_time)
+    y, y_average, time = cal.subtract_moving_average(
+        time, data[:, 1], averaging_time)
+
     trajectory = np.stack((x, y), axis=1)
     trajectory_averaged = np.stack((x_average, y_average), axis=1)
 
@@ -67,12 +71,16 @@ def trajectory_plot(time, data, averaging_time=1.):
         ax.grid(True)
         ax.set_xlabel('Time [s]')
         ax.set_ylabel('Direction {} '.format(titles[i]) + r'[$\mu m$]')
-        ax.scatter(time, trajectory[:, i] + trajectory_averaged[:, i], s=4, label = r'original')
-        ax.scatter(time, trajectory_averaged[:, i], s=4, label = r'averaged')
-        ax.legend(loc = 'best')
+        ax.scatter(
+            time, trajectory[:, i] + trajectory_averaged[:, i],
+            s=4, label=r'original'
+            )
+        ax.scatter(time, trajectory_averaged[:, i], s=4, label=r'averaged')
+        ax.legend(loc='best')
     fig.tight_layout()
     plt.show()
     return None
+
 
 def calibration_plots(time, data, averaging_time=1., temp=293.):
     """
@@ -110,14 +118,16 @@ def calibration_plots(time, data, averaging_time=1., temp=293.):
             ax = fig.add_subplot(1, 2, i+1)
             ax.set_xlabel(('Direction {} ' + r'[$\mu m$]').format(titles[i]))
             ax.set_ylabel('Bin height')
-            hist, bin_edges = np.histogram(trajectory[:, i], bins=int(np.sqrt(len(trajectory[:, i]))), density=True)
+            hist, bin_edges = np.histogram(trajectory[:, i], bins=int(
+                np.sqrt(len(trajectory[:, i]))), density=True)
             ax.set_title('k_{} = {:.2e}J/m^2'.format(titles[i], k[i]))
             bin_centres = (bin_edges[:-1] + bin_edges[1:])/2.
             ax.scatter(bin_centres, hist, s=4)
             x_model = np.linspace(min(bin_centres), max(bin_centres), 100)
             prefactor = 1./np.sqrt(2.*np.pi*var[i])
-            ax.plot(x_model, prefactor*np.exp(-x_model**2./(2.*var[i])),label = r'fit')
-            ax.legend(loc = 'best')
+            ax.plot(x_model, prefactor*np.exp(-x_model **
+                                              2./(2.*var[i])), label=r'fit')
+            ax.legend(loc='best')
         fig.tight_layout()
         plt.show()
         return None
@@ -126,12 +136,14 @@ def calibration_plots(time, data, averaging_time=1., temp=293.):
     histogram_plot(trajectory, var)
     return None
 
+
 def potential_plot(time, data, averaging_time=1., temp=293.):
     """
     TODO (Taken from the calibration.py)
 
     """
-    positions, potential_values, _ = cal.potential(time, data, averaging_time= averaging_time, temp=temp)
+    positions, potential_values, _ = cal.potential(
+        time, data, averaging_time=averaging_time, temp=temp)
 
     fig = plt.figure()
     titles = ['x', 'y']
@@ -145,6 +157,42 @@ def potential_plot(time, data, averaging_time=1., temp=293.):
     plt.show()
     return None
 
+
+def potential_polynomial_fit_plot(
+    time, data, averaging_time=1., temp=293., order=2
+):
+    """
+    TODO (Taken from the calibration.py)
+
+    """
+    positions, potential_values, popt, _ = cal.calibrate_by_fitting_polynomial(
+        time, data, averaging_time=1, order=4)
+
+    def f(x, *coefs):
+        polynomial = 0.
+        i = 0
+        for coef in coefs:
+            polynomial += coef * x ** (2 * i)
+            i += 1
+        return polynomial
+
+    fig = plt.figure()
+    titles = ['x', 'y']
+    for i in range(2):
+        ax = fig.add_subplot(1, 2, i+1)
+        ax.set_title(
+            'Shape of the potential in {} direction'.format(titles[i]))
+        ax.set_xlabel(('{} ' + r'[$\mu m$]').format(titles[i]))
+        ax.set_ylabel('Potential [kT]')
+        ax.scatter(positions[i], potential_values[i], s=4)
+
+        x = np.linspace(positions[i][0], positions[i][-1], 100)
+        ax.plot(x, f(x, *popt[i]))
+    fig.tight_layout()
+    plt.show()
+    return None
+
+
 def force_plot(time, forces):
     """
     TODO (Taken from the force_calc.py)
@@ -156,17 +204,18 @@ def force_plot(time, forces):
         times of recorded points
     forces : ndarray of floatd
         two-column array of forces on trapped bead in x- and y-directions
-    """        
+    """
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.set_title('Radial gradient forces on trapped particle')
     ax.set_xlabel('Time [s]')
     ax.set_ylabel('F [pN]')
-    ax.plot(time, forces[:, 0]*1e6, label = r'$F_x$')
-    ax.plot(time, forces[:, 1]*1e6, label = r'$F_y$')
-    ax.plot(time, np.sqrt(forces[:, 0]**2 + forces[:, 1]**2)*1e6, label = r'$F_{sum}$')
+    ax.plot(time, forces[:, 0]*1e6, label=r'$F_x$')
+    ax.plot(time, forces[:, 1]*1e6, label=r'$F_y$')
+    ax.plot(time, np.sqrt(forces[:, 0]**2 +
+                          forces[:, 1]**2)*1e6, label=r'$F_{sum}$')
     ax.grid(True)
-    ax.legend(loc = 'best')
+    ax.legend(loc='best')
     fig.tight_layout()
     plt.show()
     return None
